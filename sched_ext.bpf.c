@@ -91,3 +91,7 @@ struct sched_ext_ops sched_ops = {
     .name     = SCHEDULER_NAME
 };
 
+// ----------------------------------------------------------
+// License Declartion
+// ----------------------------------------------------------
+char _license[] SEC("license") = "GPL"
