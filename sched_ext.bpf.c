@@ -77,3 +77,17 @@ int BPF_STRUCT_OPS(sched_dispatch, s32 cpu, struct task_struct *prev) {
 // ---------------------------------------------------------
 // Scheduler Definition Structure
 // --------------------------------------------------------
+
+/**
+ * @brief Main scheduler operations structure
+ * Defines the interface and behaviour of the scheduler
+ */
+SEC(".struct_ops.link")
+struct sched_ext_ops sched_ops = {
+    .enqueue  = (void *)sched_enqueue,
+    .dispatch = (void *)sched_dispatch,
+    .init     = (void *)sched_init,
+    .flags    = SCHEDULER_FLAGS,
+    .name     = SCHEDULER_NAME
+};
+
