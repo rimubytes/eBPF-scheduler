@@ -20,3 +20,18 @@ python3 -c "import psutil" 2>/dev/null || {
     exit 1
 }
 
+# Run the tests
+echo -e "${YELLOW}Running scheduler tests...${NC}"
+python3 test_scheduler.py
+
+# Store test result
+TEST_RESULT=$?
+
+# Check the result
+if [ $TEST_RESULT -eq 0 ]; then
+    echo -e "${GREEN}All tests passed successfully!${NC}"
+else
+    echo -e "${RED}Tests failed with exit code $TEST_RESULT${NC}"
+fi
+
+exit $TEST_RESULT
