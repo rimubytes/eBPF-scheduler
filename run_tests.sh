@@ -12,3 +12,11 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
+# Check for required Python packages
+echo -e "${YELLOW}Checking dependencies...${NC}"
+python3 -c "import psutil" 2>/dev/null || {
+    echo -e "${RED}Error: psutil package is required${NC}"
+    echo "Please install it using: pip3 install psutil"
+    exit 1
+}
+
