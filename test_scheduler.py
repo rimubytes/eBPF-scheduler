@@ -72,3 +72,40 @@ class SchedulerTestCase(unittest.TestCase):
         # Check if CPU usage was distributed
         self.assertGreater(sum(cpu_usage_samples) / len(cpu_usage_samples), 0)
     
+    def test_time_slice_distribution(self):
+        """Test if time slices are being distributed fairly."""
+        def monitor_process(duration: float) -> List[float]:
+            """Monitor CPU usage of current process."""
+            samples = []
+            end_time = time.time() + duration
+            while time.time() < end_time:
+                samples.append(psutil.Process().cpu_percent(interval=0.1))
+            return samples
+        
+        # Run two competing processes
+        process1_samples: List[float] = []
+        process2_samples: List[float] = []
+        
+        def run_process1():
+            nonlocal process1_samples
+            process1_samples = monitor_process(2.0)
+        
+        def run_process2():
+            nonlocal process2_samples
+            process2_samples = monitor_process(2.0)
+        
+        t1 = threading.Thread(target=run_process1)
+        t2 = threading.Thread(target=run_process2)
+        
+        t1.start()
+        t2.start()
+        t1.join()
+        t2.join()
+        
+        # Calculate average CPU usage
+        avg1 = sum(process1_samples) / len(process1_samples)
+        avg2 = sum(process2_samples) / len(process2_samples)
+        
+        # Check if CPU time is roughly equal (within 20% margin)
+        ratio = min(avg1, avg2) / max(avg1, avg2)
+        self.assertGreater(ratio, 0.8)
