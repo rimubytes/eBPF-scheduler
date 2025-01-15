@@ -109,7 +109,7 @@ class SchedulerTestCase(unittest.TestCase):
         # Check if CPU time is roughly equal (within 20% margin)
         ratio = min(avg1, avg2) / max(avg1, avg2)
         self.assertGreater(ratio, 0.8)
-        
+
     def test_scheduler_stress(self):
         """Stress test the scheduler with many processes."""
         def stress_task():
@@ -136,3 +136,21 @@ class SchedulerTestCase(unittest.TestCase):
         
         # Check if system remained responsive
         self.assertLess(max(cpu_usage), 100.0)
+        
+    def test_error_handling(self):
+        """Test error handling in the scheduler."""
+        # Try to load scheduler when already loaded
+        result = subprocess.run(['./start.sh'], 
+                              capture_output=True, 
+                              text=True)
+        self.assertNotEqual(result.returncode, 0)
+        
+        # Try to unload scheduler twice
+        subprocess.run(['./stop.sh'])
+        result = subprocess.run(['./stop.sh'], 
+                              capture_output=True, 
+                              text=True)
+        self.assertNotEqual(result.returncode, 0)
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)
