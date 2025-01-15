@@ -109,3 +109,30 @@ class SchedulerTestCase(unittest.TestCase):
         # Check if CPU time is roughly equal (within 20% margin)
         ratio = min(avg1, avg2) / max(avg1, avg2)
         self.assertGreater(ratio, 0.8)
+        
+    def test_scheduler_stress(self):
+        """Stress test the scheduler with many processes."""
+        def stress_task():
+            """Short CPU-intensive task."""
+            start = time.time()
+            while time.time() - start < 0.5:
+                _ = [i * i for i in range(1000)]
+        
+        # Launch many threads
+        threads = []
+        for _ in range(20):
+            thread = threading.Thread(target=stress_task)
+            thread.start()
+            threads.append(thread)
+        
+        # Monitor system stability
+        cpu_usage = []
+        for _ in range(5):
+            cpu_usage.append(psutil.cpu_percent(interval=0.2))
+        
+        # Wait for all threads
+        for thread in threads:
+            thread.join()
+        
+        # Check if system remained responsive
+        self.assertLess(max(cpu_usage), 100.0)
